@@ -15,11 +15,11 @@ class GallaryController extends Controller
     public function  store(Request $request)
     {
         $validatedData = $request->validate([
-            'path' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Adjusted for images and made it nullable
+            'path' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        $image = $request->file('path'); // Assuming 'path' is the file input
-        $imageName = $image->getClientOriginalName(); // You can customize this as needed
+        $image = $request->file('path');
+        $imageName = $image->getClientOriginalName();
         $path = $image->storeAs('MainImages', $imageName, 'public');
         $roses = new gallary;
         $roses->path = $path;
@@ -31,12 +31,10 @@ class GallaryController extends Controller
     public function  destroy($id)
     {
         $gallary = gallary::find($id);
-        // Check if the product exists
         if (!$gallary) {
             return redirect()->back()->with('error', 'Chef not found');
         }
 
-        // Proceed with the deletion
         $gallary->delete();
         return redirect()->back()->with('success', 'Chef Deleted successfully');
     }

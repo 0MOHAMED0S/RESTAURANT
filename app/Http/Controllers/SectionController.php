@@ -32,17 +32,13 @@ class SectionController extends Controller
     }
     public function updateActiveSection(Request $request)
     {
-        // Validate the form data
         $validatedData= $request->validate([
-            'active_section_id' => 'required|exists:sections,id', // Add any other validation rules as needed
+            'active_section_id' => 'required|exists:sections,id',
         ]);
-        // Get the selected section ID from the request
         $selectedSectionId = $validatedData['active_section_id'];
 
-        // Update the current active section to be inactive
         Section::where('active', 1)->update(['active' => 0]);
 
-        // Update the new active section
         Section::where('id', $selectedSectionId)->update(['active' => 1]);
         return redirect()->back()->with('success', 'Active section updated successfully.');
     }
@@ -50,12 +46,10 @@ class SectionController extends Controller
     public function  destroy($id)
     {
         $ietm = section::find($id);
-        // Check if the product exists
         if (!$ietm) {
             return redirect()->back()->with('error', 'Product not found');
         }
 
-        // Proceed with the deletion
         $ietm->delete();
         return redirect()->back()->with('success', 'Data Deleted successfully.');
     }

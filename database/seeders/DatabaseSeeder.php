@@ -18,6 +18,5 @@ class DatabaseSeeder extends Seeder
             ContactUsTableSeeder::class,
             UsersTableSeeder::class,
         ]);
-    
     }
 }

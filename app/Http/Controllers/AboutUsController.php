@@ -10,14 +10,14 @@ class AboutUsController extends Controller
     public function edit(){
         $aboutus=AboutUs::first();
     return view('admin.edit_aboutus',compact('aboutus'));
-    }  
+    }
     public function  update(Request $request)
     {
         $aboutus =  AboutUs::first();
         $validatedData = $request->validate([
             'details' => 'required|string',
-            'first_path' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Adjusted for images
-            'second_path' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Adjusted for images and made it nullable
+            'first_path' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048', 
+            'second_path' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'booktable_number' => 'required|integer',
         ]);
         if ($request->file('first_path')) {
