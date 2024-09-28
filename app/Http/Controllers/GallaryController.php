@@ -2,40 +2,32 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\gallary;
+use App\Http\Requests\GallaryRequest;
+use App\Models\GallaryImage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class GallaryController extends Controller
 {
     public function gallary(){
-        $gallarys=gallary::get();
-        return view('admin.gallary',compact('gallarys'));
+        $gallarys=GallaryImage::get();
+        return view('admin.Gallary.Gallary',compact('gallarys'));
     }
 
-    public function  store(Request $request)
+    public function  store(GallaryRequest $request)
     {
-        $validatedData = $request->validate([
-            'path' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ]);
-
-        $image = $request->file('path');
-        $imageName = $image->getClientOriginalName();
-        $path = $image->storeAs('MainImages', $imageName, 'public');
-        $roses = new gallary;
-        $roses->path = $path;
-        $roses->save();
+        $data=$request->validated();
+        $path = $request->file('path')->store('GallaryImages','public');
+        $data['path']=$path;
+        GallaryImage::create($data);
         return redirect()->back()->with('success', 'Data stored successfully');
-
     }
 
     public function  destroy($id)
     {
-        $gallary = gallary::find($id);
-        if (!$gallary) {
-            return redirect()->back()->with('error', 'Chef not found');
-        }
-
+        $gallary = GallaryImage::findOrFail($id);
         $gallary->delete();
-        return redirect()->back()->with('success', 'Chef Deleted successfully');
+        Storage::disk('public')->delete($gallary->path);
+        return redirect()->back()->with('success', 'Data Deleted successfully');
     }
 }

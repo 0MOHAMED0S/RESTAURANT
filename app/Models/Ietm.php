@@ -5,19 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class section extends Model
+class Ietm extends Model
 {
     use HasFactory;
     protected $fillable = [
         'name',
-        'namo',
-        'active'
+        'price',
+        'path',
+        'section_id',
+        'details'
     ];
-
-    public function ietms(): HasMany
+    public function section(): BelongsTo
     {
-        return $this->hasMany(Ietm::class);
+        return $this->belongsTo(Section::class);
     }
+
 }

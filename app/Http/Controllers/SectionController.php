@@ -2,32 +2,32 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SectionRequest;
 use App\Models\section;
 use Illuminate\Http\Request;
 
 class SectionController extends Controller
 {
-    public function  store(Request $request)
+    public function sections(){
+        $sections=section::get();
+        return view('admin.Sections.Sections',compact('sections'));
+    }
+    public function  store(SectionRequest $request)
     {
-        $validatedData = $request->validate([
-            'name' => 'required|string',
-        ]);
-        $section = new section;
-        $section->name = $validatedData['name'];
-        $section->namo = str_replace(' ', '-', $validatedData['name']);
-        $section->save();
-        return redirect()->back()->with('success', 'Data stored successfully');
+        $data=$request->validated();
+        $namo = str_replace(' ', '-', $request->name);
+        $data['namo']=$namo;
+        Section::create($data);
+        return redirect()->back()->with('success', value: 'Data stored successfully');
     }
 
-    public function  update(Request $request,$id)
+    public function  update(SectionRequest $request,$id)
     {
         $section =  section::find($id);
-        $validatedData = $request->validate([
-            'name' => 'required|string',
-        ]);
-        $section->name = $validatedData['name'];
-        $section->namo = str_replace(' ', '-', $validatedData['name']);
-        $section->save();
+        $data=$request->validated();
+        $namo = str_replace(' ', '-', $request->name);
+        $data['namo']=$namo;
+        $section->update($data);
         return redirect()->back()->with('success', 'Data Updated Successfully');
     }
     public function updateActiveSection(Request $request)
@@ -45,12 +45,12 @@ class SectionController extends Controller
 
     public function  destroy($id)
     {
-        $ietm = section::find($id);
-        if (!$ietm) {
-            return redirect()->back()->with('error', 'Product not found');
+        $section = section::findOrFail($id);
+        $sectionount = $section->ietms->count();
+        if ($sectionount > 0) {
+            return redirect()->back()->with('error', 'Section cannot be deleted because there are ' . $sectionount . ' Ietms in this section!');
         }
-
-        $ietm->delete();
-        return redirect()->back()->with('success', 'Data Deleted successfully.');
+        $section->delete();
+        return redirect()->back()->with('success', 'Section Deleted successfully.');
     }
 }

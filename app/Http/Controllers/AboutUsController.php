@@ -2,45 +2,32 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AboutRequest;
 use App\Models\AboutUs;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class AboutUsController extends Controller
 {
-    public function edit(){
-        $aboutus=AboutUs::first();
-    return view('admin.edit_aboutus',compact('aboutus'));
+    public function index(){
+    $aboutus=AboutUs::first();
+    return view('admin.About.Aboutus',compact('aboutus'));
     }
-    public function  update(Request $request)
+    public function  update(AboutRequest $request)
     {
         $aboutus =  AboutUs::first();
-        $validatedData = $request->validate([
-            'details' => 'required|string',
-            'first_path' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048', 
-            'second_path' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'booktable_number' => 'required|integer',
-        ]);
+        $data=$request->validated();
         if ($request->file('first_path')) {
-            $image = $request->file('first_path');
-            $imageName = $image->getClientOriginalName();
-            $first_path = $image->storeAs('MainImages', $imageName, 'public');
-        } else {
-            $first_path = $aboutus->first_path;
+            $first_path = $request->file('first_path')->store('AboutImages','public');
+            Storage::disk('public')->delete($aboutus->first_path);
+            $data['first_path']=$first_path;
         }
-
         if ($request->file('second_path')) {
-            $image = $request->file('second_path');
-            $imageName = $image->getClientOriginalName();
-            $second_path = $image->storeAs('MainImages', $imageName, 'public');
-        } else {
-            $second_path = $aboutus->second_path;
+            $second_path = $request->file('second_path')->store('AboutImages','public');
+            Storage::disk('public')->delete($aboutus->second_path);
+            $data['second_path']=$second_path;
         }
-
-        $aboutus->details = $validatedData['details'];
-        $aboutus->booktable_number = $validatedData['booktable_number'];
-        $aboutus->first_path = $first_path;
-        $aboutus->second_path = $second_path;
-        $aboutus->save();
+        $aboutus->update($data);
         return redirect()->back()->with('success', 'Data Updated Successfully');
     }
 }

@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\AboutUs;
+use App\Models\Chef;
 use App\Models\chefs;
 use App\Models\contactus;
 use App\Models\gallary;
+use App\Models\GallaryImage;
+use App\Models\Ietm;
 use App\Models\menu;
 use App\Models\section;
 use App\Models\welcome;
@@ -16,11 +19,11 @@ class Yummy extends Controller
     public function index(){
         $welcomes=welcome::first();
         $aboutus=AboutUs::first();
-        $menus=menu::get();
+        $menus=Ietm::get();
         $sections=section::get();
-        $chefs=chefs::get();
+        $chefs=Chef::get();
         $contactus=contactus::first();
-        $gallarys=gallary::get();
+        $gallarys=GallaryImage::get();
         return view('index',compact('welcomes','aboutus','menus','sections','chefs','contactus','gallarys'));
     }
     public function sections(){
@@ -29,7 +32,7 @@ class Yummy extends Controller
     }
 
     public function menuietms(){
-        $menus=menu::get();
+        $menus=Ietm::get();
         $sections=section::get();
         return view('admin.all_menu_ietms',compact('menus','sections'));
     }

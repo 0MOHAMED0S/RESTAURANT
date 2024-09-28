@@ -1,10 +1,11 @@
 <?php
 
 use App\Http\Controllers\AboutUsController;
+use App\Http\Controllers\ChefController;
 use App\Http\Controllers\ChefsController;
 use App\Http\Controllers\ContactusController;
 use App\Http\Controllers\GallaryController;
-use App\Http\Controllers\MenuController;
+use App\Http\Controllers\IetmController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SectionController;
 use App\Http\Controllers\Yummy;
@@ -22,9 +23,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
 Route::get('/', [Yummy::class, 'index'])->name('index');
 
 
@@ -32,37 +30,61 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::middleware('auth')->group(function () {
-    Route::put('/update/Welcome', [welcome::class, 'update'])->name('update.welcome');
-    Route::get('/create/menu', [MenuController::class, 'create'])->name('create.menu');
-    Route::post('/store/menu', [MenuController::class, 'store'])->name('store.menu');
-    Route::get('/edit/menu/{id}', [MenuController::class, 'edit'])->name('edit.menu');
-    Route::put('/update/menu/{id}', [MenuController::class, 'update'])->name('update.menu');
-    Route::delete('/{id}', [MenuController::class, 'destroy'])->name('destroy.menu');
-    Route::post('/store/section', [SectionController::class, 'store'])->name('store.section');
-    Route::post('/active-section', [SectionController::class, 'updateActiveSection'])->name('active.section');
-    Route::put('/update/Section/{id}', [SectionController::class, 'update'])->name('update.section');
-    Route::delete('/destroy/section{id}', [SectionController::class, 'destroy'])->name('destroy.section');
+Route::prefix('/dashboard')->middleware('auth')->group(function () {
 
-    Route::get('/dashboard/sections', [Yummy::class, 'sections'])->name('sections');
-    Route::get('/dashboard/menuietms', [Yummy::class, 'menuietms'])->name('menuietms');
-    Route::get('/dashboard/welcomepage', [welcome::class, 'welcomepage'])->name('welcomepage');
-    Route::get('/dashboard/chefs', [ChefsController::class, 'chefs'])->name('chefs');
-    Route::post('/dashboard/chefs/create', [ChefsController::class, 'store'])->name('store.chef');
-    Route::put('/dashboard/chefs/update/{id}', [ChefsController::class, 'update'])->name('update.chefs');
-    Route::delete('/dashboard/chefs/destroy{id}', [ChefsController::class, 'destroy'])->name('destroy.chef');
-    Route::get('/dashboard/gallary', [GallaryController::class, 'gallary'])->name('gallary');
-    Route::post('/dashboard/gallary/store', [GallaryController::class, 'store'])->name('store.gallary');
-    Route::delete('/dashboard/gallary/destroy{id}', [GallaryController::class, 'destroy'])->name('destroy.gallary');
-    Route::get('/dashboard/contactus', [ContactusController::class, 'contactus'])->name('contactus');
-    Route::put('/dashboard/contactus/update/{id}', [ContactusController::class, 'update'])->name('update.contactus');
+    //Welcome Details //
+    Route::prefix('Welcome/Details')->controller(welcome::class)->group(function () {
+        Route::put('/update', [welcome::class, 'update'])->name('update.welcome');
+        Route::get('/', [welcome::class, 'welcomepage'])->name('welcomepage');
+    });
 
-    Route::get('/edit/AboutUs', [AboutUsController::class, 'edit'])->name('edit.aboutus');
-    Route::put('/update/AboutUs', [AboutUsController::class, 'update'])->name('update.aboutus');
+    //Ietms //
+    Route::prefix('/ietms')->controller(IetmController::class)->group(function () {
+        Route::get('/',  'ietms')->name('menuietms');
+        Route::post('/store', 'store')->name('store.ietm');
+        Route::get('/{id}/edit',  'edit')->name('edit.ietm');
+        Route::put('/{id}/update',  'update')->name('update.ietm');
+        Route::delete('/{id}/destroy',  'destroy')->name('destroy.ietm');
+    });
 
+    //Sections //
+    Route::prefix('/sections')->controller(SectionController::class)->group(function () {
+        Route::get('/',  'sections')->name('sections');
+        Route::post('/store',  'store')->name('store.section');
+        Route::post('/active',  'updateActiveSection')->name('active.section');
+        Route::put('/{id}/update',  'update')->name('update.section');
+        Route::delete('/{id}/destroy',  'destroy')->name('destroy.section');
+    });
+
+    //Chefs //
+    Route::prefix('/chefs')->controller(ChefController::class)->group(function () {
+        Route::get('/', 'chefs')->name('chefs');
+        Route::post('/create',  'store')->name('store.chef');
+        Route::put('/{id}/update',  'update')->name('update.chef');
+        Route::delete('/{id}/destroy', 'destroy')->name('destroy.chef');
+    });
+
+    //Gallary //
+    Route::prefix('/gallary')->controller(GallaryController::class)->group(function () {
+        Route::get('/', 'gallary')->name('gallary');
+        Route::post('/store', 'store')->name('store.gallary');
+        Route::delete('/{id}/destroy', 'destroy')->name('destroy.gallary');
+    });
+
+    //Contact Us //
+    Route::prefix('/contactus')->controller(ContactusController::class)->group(function () {
+        Route::get('/',  'contactus')->name('contactus');
+        Route::put('/{id}/update', 'update')->name('update.contactus');
+    });
+
+    //About Us //
+    Route::prefix('/aboutus')->controller(AboutUsController::class)->group(function () {
+        Route::get('/',  'index')->name('edit.aboutus');
+        Route::put('/update',  'update')->name('update.aboutus');
+    });
+});
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

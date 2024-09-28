@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\WelcomeRequest;
 use App\Models\welcome as ModelsWelcome;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class welcome extends Controller
 {
@@ -11,38 +13,21 @@ class welcome extends Controller
         $welcomes=ModelsWelcome::first();
         return view('admin.welcomepage',compact('welcomes'));
     }
-    public function  update(Request $request)
+    public function  update(WelcomeRequest $request)
     {
         $welcomes =  ModelsWelcome::first();
-        $validatedData = $request->validate([
-            'name' => 'required|string',
-            'description' => 'required|string',
-            'logo_path' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Adjusted for images
-            'main_path' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Adjusted for images and made it nullable
-            'hight_light' => 'required|string',
-        ]);
+        $data=$request->validated();
         if ($request->file('logo_path')) {
-            $image = $request->file('logo_path');
-            $imageName = $image->getClientOriginalName();
-            $logo_path = $image->storeAs('MainImages', $imageName, 'public');
-        } else {
-            $logo_path = $welcomes->logo_path;
+            $logo_path = $request->file('logo_path')->store('WelcomeImages','public');
+            Storage::disk('public')->delete($welcomes->logo_path);
+            $data['logo_path']=$logo_path;
         }
-
         if ($request->file('main_path')) {
-            $image = $request->file('main_path');
-            $imageName = $image->getClientOriginalName();
-            $main_path = $image->storeAs('MainImages', $imageName, 'public');
-        } else {
-            $main_path = $welcomes->main_path;
+            $main_path = $request->file('main_path')->store('WelcomeImages','public');
+            Storage::disk('public')->delete($welcomes->main_path);
+            $data['main_path']=$logo_path;
         }
-
-        $welcomes->name = $validatedData['name'];
-        $welcomes->description = $validatedData['description'];
-        $welcomes->hight_light = $validatedData['hight_light'];
-        $welcomes->logo_path = $logo_path;
-        $welcomes->main_path = $main_path;
-        $welcomes->save();
+        $welcomes->update($data);
         return redirect()->back()->with('success', 'Data Updated Successfully');
     }
 }
